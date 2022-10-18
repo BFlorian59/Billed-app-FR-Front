@@ -7,12 +7,13 @@ import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
 import { ROUTES, ROUTES_PATH } from "../constants/routes"
 import {localStorageMock} from "../__mocks__/localStorage.js";
-import Bills from "../containers/Bills.js";
+import Bills, {icon} from "../containers/Bills.js";
 import userEvent from '@testing-library/user-event';
 import mockStore from "../__mocks__/store"
 import Actions from "../views/Actions";
-
 import router from "../app/Router.js";
+
+jest.mock("../app/store", () => mockStore)
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
@@ -41,24 +42,21 @@ describe("Given I am connected as an employee", () => {
       expect(dates).toEqual(datesSorted)
     })
 
-    describe("Quand je click sur le bouton btn-new-bill", () =>{
-
-     
-      
-      it('Alors il appelle la fonction this.handleClickNewBill pour afficher la modale pour ajouterune nouvelle note de frais', () => {
+    describe("Quand je click sur le bouton btn-new-bill", () =>{ 
+      it('Alors il appelle la fonction this.handleClickNewBill pour afficher la modale pour ajouter une nouvelle note de frais', () => {
          const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname })
-      }
-      const bills = new Bills({
-        document, onNavigate, store: null, localStorage: window.localStorage
-      })
+          document.body.innerHTML = ROUTES({ pathname })
+        }
+        const bills = new Bills({
+          document, onNavigate, store: null, localStorage: window.localStorage
+        })
 
-      const handleClickNewBill = jest.fn(() => bills.handleClickNewBill())
-        const buttonNewBill = screen.getByTestId("btn-new-bill")
-  
-        buttonNewBill.addEventListener('click', handleClickNewBill)
-        userEvent.click(buttonNewBill)
-        expect(handleClickNewBill).toHaveBeenCalled()
+         const handleClickNewBill = jest.fn(() => bills.handleClickNewBill())
+          const buttonNewBill = screen.getByTestId("btn-new-bill")
+    
+          buttonNewBill.addEventListener('click', handleClickNewBill)
+          userEvent.click(buttonNewBill)
+          expect(handleClickNewBill).toHaveBeenCalled()
       })
       it('should render the new bill page', () => {
 
@@ -74,6 +72,11 @@ describe("Given I am connected as an employee", () => {
         window.localStorage.setItem('user', JSON.stringify({
           type: 'Employee'
         }))
+
+        document.body.innerHTML = BillsUI({ data: bills })
+
+        const billsInstance = new Bills({ document })
+
         document.body.innerHTML = Actions()
         const onNavigate = (pathname) => {
           document.body.innerHTML = ROUTES({ pathname })
@@ -82,16 +85,15 @@ describe("Given I am connected as an employee", () => {
         const bill = new Bills({
           document, onNavigate, store, bills, localStorage: window.localStorage
         })    
-
+        $.fn.modal = jest.fn(); 
         const eye = screen.getByTestId('icon-eye')
-        const handleClickIconEye = jest.fn(bill.handleClickIconEye())
+        const handleClickIconEye =  jest.fn(() => billsInstance.handleClickIconEye(eye))
         
         eye.addEventListener('click', handleClickIconEye)
         userEvent.click(eye)
         expect(handleClickIconEye).toHaveBeenCalled()
   
-        const modale = screen.getByTestId("modaleFileemployee")
-        expect(modale).toBeTruthy()
+        expect(document.getElementById('modaleFile')).toBeTruthy   
       })
     })
   })
@@ -101,26 +103,18 @@ describe("Given I am connected as an employee", () => {
 describe("Given I am a user connected as employee", () => {
   describe("When I navigate to Bills", () => {
     test("fetches bills from mock API GET", async () => {
-      localStorage.setItem("user", JSON.stringify({ type: "Employee", email: "a@a" }));
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee'
+      }))
       const root = document.createElement("div")
       root.setAttribute("id", "root")
       document.body.append(root)
       router()
-      window.onNavigate(ROUTES_PATH.Bills)
-      // await waitFor(() => screen.getByText("Mes notes de frais"))
-      // const contentType  = await screen.getByText("Type")
-      // expect(contentType).toBeTruthy()
-      // const contentNom  = await screen.getByText("Nom")
-      // expect(contentNom).toBeTruthy()
-      // const contentDate  = await screen.getByText("Date")
-      // expect(contentDate).toBeTruthy()
-      // const contentMontant  = await screen.getByText("Montant")
-      // expect(contentMontant).toBeTruthy()
-      // const contentStatut  = await screen.getByText("Statut")
-      // expect(contentStatut).toBeTruthy()
-      // const contentActions  = await screen.getByText("Actions")
-      // expect(contentActions).toBeTruthy()
-      //expect(screen.getByTestId("btn-new-bill")).toBeTruthy()
+      onNavigate(ROUTES_PATH.Bills)
+
+      const lastBill = await waitFor(() => screen.getByText('test2'))
+      expect(lastBill).toBeTruthy()
     })
   describe("When an error occurs on API", () => {
     beforeEach(() => {
@@ -149,8 +143,8 @@ describe("Given I am a user connected as employee", () => {
         }})
       window.onNavigate(ROUTES_PATH.Bills)
       await new Promise(process.nextTick);
-      // const message = await screen.getByText(/Erreur 404/)
-      //expect(message).toBeTruthy()
+      const message = await screen.getByText(/Erreur 404/)
+      expect(message).toBeTruthy()
     })
 
     test("fetches messages from an API and fails with 500 message error", async () => {
@@ -164,8 +158,8 @@ describe("Given I am a user connected as employee", () => {
 
       window.onNavigate(ROUTES_PATH.Bills)
       await new Promise(process.nextTick);
-      // const message = await screen.getByText(/"Erreur 500/)
-      //expect(message).toBeTruthy()
+      const message = await screen.getByText(/Erreur 500/)
+      expect(message).toBeTruthy()
     })
   })
 

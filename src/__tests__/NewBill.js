@@ -2,58 +2,105 @@
  * @jest-environment jsdom
  */
 
- import {fireEvent, screen, waitFor} from "@testing-library/dom"
+import {fireEvent, screen, waitFor} from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
 import { localStorageMock } from "../__mocks__/localStorage.js"
+import mockStore from "../__mocks__/store"
+import { bills } from "../fixtures/bills.js"
 import { ROUTES, ROUTES_PATH } from "../constants/routes"
+import userEvent from '@testing-library/user-event'
+
+jest.mock("../app/store", () => mockStore)
 
 describe("Given I am connected as an employee", () => {
-  describe("When I am on NewBill Page", () => {
-    test("Alors le formulaire apparait.", () => {
-      const html = NewBillUI()
-      document.body.innerHTML = html
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname })
-      }
-      //to-do write assertion
-      const newBill = new NewBill({
-        document, onNavigate, store: null, localStorage: window.localStorage
+  describe("When I choose a not valid proof file", () => {
+    test("Then a warning should be display", () => { // Unit test of the handleChangeFile function
+      document.body.innerHTML = NewBillUI()
+
+      // Mocking browser API localStorage
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        email: 'a@a.fr'
+      }))
+  
+      new NewBill({
+        document,
+        onNavigate: null,
+        store: mockStore,
+        localStorage: window.localStorage
       })
 
-      const file = screen.getByTestId("file")
-      const handleChangeFile  = jest.fn((e) => newBill.handleChangeFile(e))
-
-      file .addEventListener("click", handleChangeFile )
-      fireEvent.click(file)
-      expect(handleChangeFile ).toHaveBeenCalled()
-
+      const inputFile = screen.getByTestId('file')
+      fireEvent.change(inputFile, {
+        target: {
+          files: [
+            new File(['test.txt'], 'test.txt')
+          ]
+        }
+      })
+      
+      expect(screen.getByText(/Veuillez choisir/)).toBeTruthy()
     })
+  })
 
-    describe('When I click on submit button', () => {
-      test('les informations sont rajoutés au tableau', () => {
+  describe("When I choose a valid proof file", () => {
+    test("Then file data should be sent", async () => {
+      document.body.innerHTML = NewBillUI()
+
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        email: 'a@a.fr'
+      }))
+      
+      const newBill = new NewBill({
+        document,
+        onNavigate: null,
+        store: mockStore,
+        localStorage: window.localStorage,
+      })
+
+      const inputFile = screen.getByTestId('file')
+
+      fireEvent.change(inputFile, {
+        target: {
+          files: [
+            new File(['test.jpg'], 'test.jpg')
+          ]
+        }
+      })
+
+      // Wait for asynchronous code to finish execution
+      await new Promise(process.nextTick)
+      
+      expect(newBill.billId).toBe('1234')
+    })
+    // POST newbills
+    describe("When I choose a valid proof file and I click on send button", () => {
+      test("Then I should be sent on Bills page", async () => {
+        document.body.innerHTML = NewBillUI()
+
+        const onNavigate = (pathname) => {
+          document.body.innerHTML = ROUTES({ pathname, data: bills })
+        }
         Object.defineProperty(window, 'localStorage', { value: localStorageMock })
         window.localStorage.setItem('user', JSON.stringify({
-          type: 'Employee'
+          email: 'a@a.fr'
         }))
-        document.body.innerHTML = NewBillUI()
-        const html = NewBillUI()
-        document.body.innerHTML = html
-        const onNavigate = (pathname) => {
-          document.body.innerHTML = ROUTES({ pathname })
-        }
-
         const newBill = new NewBill({
-          document, onNavigate, store: null, localStorage: window.localStorage
+          document,
+          onNavigate: onNavigate,
+          store: null,
+          localStorage: window.localStorage,
         })
 
+        newBill.fileName = "test"
 
-        const formNewBill  = screen.getByTestId("form-new-bill")
-        const handleSubmit  = jest.fn((e) => newBill.handleSubmit(e))
+        const submit = screen.getByText('Envoyer')
+        userEvent.click(submit)
 
-        formNewBill.addEventListener("click", handleSubmit )
-        fireEvent.click(formNewBill)
-        expect(handleSubmit ).toHaveBeenCalled()
+        const lastBill = await waitFor(() => screen.getByText('test2'))
+        expect(lastBill).toBeTruthy()
       })
     })
   })
