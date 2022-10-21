@@ -22,22 +22,22 @@ export default class NewBill {
     // const fileName = filePath[filePath.length-1]
     const formData = new FormData()
     const email = JSON.parse(localStorage.getItem("user")).email
-    console.log(email)
     formData.append('file', file)
     formData.append('email', email)
-    // MyModif so that create is executed only if file is in the right format
-    if (!file.name.includes('png') && !file.name.includes('jpg') && !file.name.includes('jpeg')) {
-      const $invalid = this.document.querySelector('.invalid-feedback')
-      if ($invalid !== null) {
-        $invalid.classList.remove('invalid-feedback')
-        $invalid.classList.add('text-danger')
+    const filePath = file.name.includes('png') && !file.name.includes('jpg') && !file.name.includes('jpeg')
+    // create ne soit exécuté que si le fichier est au bon format
+    if (!filePath) {
+      const invalid = this.document.querySelector('.invalid-feedback')
+      if (invalid !== null) {
+        invalid.classList.remove('invalid-feedback')
+        invalid.classList.add('text-danger')
         this.fileName = null
       }
     } else {
-      const $textDanger = this.document.querySelector('.text-danger')
-      if ($textDanger !== null) {
-        $textDanger.classList.remove('text-danger')
-        $textDanger.classList.add('invalid-feedback')
+      const textDanger = this.document.querySelector('.text-danger')
+      if (textDanger !== null) {
+        textDanger.classList.remove('text-danger')
+        textDanger.classList.add('invalid-feedback')
       }
     }
     this.store

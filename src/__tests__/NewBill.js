@@ -24,12 +24,7 @@ describe("Given I am connected as an employee", () => {
         email: 'a@a.fr'
       }))
   
-      new NewBill({
-        document,
-        onNavigate: null,
-        store: mockStore,
-        localStorage: window.localStorage
-      })
+      new NewBill({document, onNavigate: null, store: mockStore, localStorage: window.localStorage})
 
       const inputFile = screen.getByTestId('file')
       fireEvent.change(inputFile, {
@@ -53,12 +48,7 @@ describe("Given I am connected as an employee", () => {
         email: 'a@a.fr'
       }))
       
-      const newBill = new NewBill({
-        document,
-        onNavigate: null,
-        store: mockStore,
-        localStorage: window.localStorage,
-      })
+      const newBill = new NewBill({document, onNavigate: null, store: mockStore, localStorage: window.localStorage})
 
       const inputFile = screen.getByTestId('file')
 
@@ -69,8 +59,6 @@ describe("Given I am connected as an employee", () => {
           ]
         }
       })
-
-      // Wait for asynchronous code to finish execution
       await new Promise(process.nextTick)
       
       expect(newBill.billId).toBe('1234')
@@ -87,12 +75,7 @@ describe("Given I am connected as an employee", () => {
         window.localStorage.setItem('user', JSON.stringify({
           email: 'a@a.fr'
         }))
-        const newBill = new NewBill({
-          document,
-          onNavigate: onNavigate,
-          store: null,
-          localStorage: window.localStorage,
-        })
+        const newBill = new NewBill({ document, onNavigate: onNavigate, store: null, localStorage: window.localStorage})
 
         newBill.fileName = "test"
 
