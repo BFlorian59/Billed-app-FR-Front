@@ -17,7 +17,7 @@ jest.mock("../app/store", () => mockStore)
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
-    test("Then bill icon in vertical layout should be highlighted", async () => {
+    it("Then bill icon in vertical layout should be highlighted", async () => {
 
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
       window.localStorage.setItem('user', JSON.stringify({
@@ -34,7 +34,7 @@ describe("Given I am connected as an employee", () => {
       expect(icon).toEqual(windowIcon)
 
     })
-    test("Then bills should be ordered from earliest to latest", () => {
+    it("Then bills should be ordered from earliest to latest", () => {
       document.body.innerHTML = BillsUI({ data: bills })
       const dates = screen.getAllByText(/^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i).map(a => a.innerHTML)
       const antiChrono = (a, b) => ((a < b) ? 1 : 1)
@@ -42,8 +42,8 @@ describe("Given I am connected as an employee", () => {
       expect(dates).toEqual(datesSorted)
     })
 
-    describe("Quand je click sur le bouton btn-new-bill", () =>{ 
-      it('Alors il appelle la fonction this.handleClickNewBill pour afficher la modale pour ajouter une nouvelle note de frais', () => {
+    describe("When I click on the button btn-new-bill", () =>{ 
+      it('Then it display the modal to add a new expense report', () => {
          const onNavigate = (pathname) => {
           document.body.innerHTML = ROUTES({ pathname })
         }
@@ -64,7 +64,7 @@ describe("Given I am connected as an employee", () => {
       })
     })
 
-    describe("Quand je click sur le bouton iconEye", () =>{
+    describe("When I click on the button iconEye", () =>{
     
       it('A modal should open', () => {
 
@@ -102,7 +102,7 @@ describe("Given I am connected as an employee", () => {
 // test d'intégration GET
 describe("Given I am a user connected as employee", () => {
   describe("When I navigate to Bills", () => {
-    test("fetches bills from mock API GET", async () => {
+    it("fetches bills from mock API GET", async () => {
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
       window.localStorage.setItem('user', JSON.stringify({
         type: 'Employee'
@@ -133,7 +133,7 @@ describe("Given I am a user connected as employee", () => {
       document.body.appendChild(root)
       router()
     })
-    test("fetches bills from an API and fails with 404 message error", async () => {
+    it("fetches bills from an API and fails with 404 message error", async () => {
 
       mockStore.bills.mockImplementationOnce(() => {
         return {
@@ -147,7 +147,7 @@ describe("Given I am a user connected as employee", () => {
       expect(message).toBeTruthy()
     })
 
-    test("fetches messages from an API and fails with 500 message error", async () => {
+    it("fetches messages from an API and fails with 500 message error", async () => {
 
       mockStore.bills.mockImplementationOnce(() => {
         return {

@@ -18,26 +18,26 @@ export default class NewBill {
   handleChangeFile = e => {
     e.preventDefault()
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-    //const filePath = e.target.value.split(/\\/g)
-    // const fileName = filePath[filePath.length-1]
+    const filePath = e.target.value.split(/\\/g)
+    const fileName = filePath[filePath.length-1]
     const formData = new FormData()
     const email = JSON.parse(localStorage.getItem("user")).email
     formData.append('file', file)
     formData.append('email', email)
-    const filePath = file.name.includes('png') && !file.name.includes('jpg') && !file.name.includes('jpeg')
     // create ne soit exécuté que si le fichier est au bon format
-    if (!filePath) {
-      const invalid = this.document.querySelector('.invalid-feedback')
-      if (invalid !== null) {
-        invalid.classList.remove('invalid-feedback')
-        invalid.classList.add('text-danger')
+    if (!file.name.includes('png') && !file.name.includes('jpg') && !file.name.includes('jpeg')) {
+      const $invalid = this.document.querySelector('.invalid_file')
+      if ($invalid !== null) {
+        $invalid.classList.remove('invalid_file')
+        $invalid.classList.add('text-danger')
         this.fileName = null
+        console.log("error")
       }
     } else {
-      const textDanger = this.document.querySelector('.text-danger')
-      if (textDanger !== null) {
-        textDanger.classList.remove('text-danger')
-        textDanger.classList.add('invalid-feedback')
+      const $textDanger = this.document.querySelector('.text-danger')
+      if ($textDanger !== null) {
+        $textDanger.classList.remove('text-danger')
+        $textDanger.classList.add('invalid_file')
       }
     }
     this.store

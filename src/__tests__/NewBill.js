@@ -15,7 +15,8 @@ jest.mock("../app/store", () => mockStore)
 
 describe("Given I am connected as an employee", () => {
   describe("When I choose a not valid proof file", () => {
-    test("Then a warning should be display", () => { // Unit test of the handleChangeFile function
+    // test de la fonction handleChangeFile 
+    it("Then a warning should be display", () => { 
       document.body.innerHTML = NewBillUI()
 
       // Mocking browser API localStorage
@@ -40,7 +41,7 @@ describe("Given I am connected as an employee", () => {
   })
 
   describe("When I choose a valid proof file", () => {
-    test("Then file data should be sent", async () => {
+    it("Then file data should be sent", async () => {
       document.body.innerHTML = NewBillUI()
 
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
@@ -65,7 +66,7 @@ describe("Given I am connected as an employee", () => {
     })
     // POST newbills
     describe("When I choose a valid proof file and I click on send button", () => {
-      test("Then I should be sent on Bills page", async () => {
+      it("Then I should be sent on Bills page", async () => {
         document.body.innerHTML = NewBillUI()
 
         const onNavigate = (pathname) => {
