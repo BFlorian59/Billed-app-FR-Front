@@ -20,9 +20,14 @@ const row = (bill) => {
   }
 
   const rows = (data) => {
+    // Ordre décroissand
+    if (data) {
+      data = data.sort(function(b,a) {
+        return new Date(a.date) - new Date(b.date);
+      });
+    }
     return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
   }
-
 export default ({ data: bills, loading, error }) => {
   
   const modal = () => (`

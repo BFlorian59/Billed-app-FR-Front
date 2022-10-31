@@ -25,19 +25,21 @@ export default class NewBill {
     formData.append('file', file)
     formData.append('email', email)
     // create ne soit exécuté que si le fichier est au bon format
+    const bouton = this.document.querySelector('button')
     if (!file.name.includes('png') && !file.name.includes('jpg') && !file.name.includes('jpeg')) {
       const $invalid = this.document.querySelector('.invalid_file')
       if ($invalid !== null) {
         $invalid.classList.remove('invalid_file')
         $invalid.classList.add('text-danger')
         this.fileName = null
-        console.log("error")
+        bouton.setAttribute("disabled", "");
       }
     } else {
       const $textDanger = this.document.querySelector('.text-danger')
       if ($textDanger !== null) {
         $textDanger.classList.remove('text-danger')
         $textDanger.classList.add('invalid_file')
+        bouton.removeAttribute("disabled", "");
       }
     }
     this.store
